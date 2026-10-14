@@ -1,0 +1,17 @@
+---
+description: Reglas del proyecto Mini tienda Toolshop (Actividad 4)
+alwaysApply: true
+---
+
+# Reglas del proyecto
+
+- La fuente de verdad es `SPEC.md`. Antes de escribir código, léelo. Si una petición choca con él, avisa y pregunta.
+- Stack fijo: Next.js App Router + TypeScript estricto (`src/`, alias `@/*`), Tailwind, SDK `mercadopago` v2, Vitest. No agregues dependencias sin decir por qué.
+- Las reglas del carrito viven solo en `src/lib/carrito.ts` como funciones puras. La interfaz y la API las importan; no dupliques cálculos.
+- El servidor siempre recalcula precios y totales. Nunca confíes en montos que vengan del navegador.
+- Secretos: solo por `process.env` (`MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`). Nunca escribas valores de claves en el código, en pruebas, en logs ni en mensajes de error. No leas ni muestres el contenido de `.env.local`.
+- Todo elemento interactivo o con datos verificables lleva el `data-testid` que define la sección 8 de `SPEC.md`. No cambies un `data-testid` existente sin avisar.
+- Textos de la interfaz y mensajes de error en español.
+- Cada cambio de lógica viene con su prueba en Vitest. Al terminar una tarea ejecuta `npm run lint`, `npm test` y `npm run build`, y reporta el resultado.
+- Git: no hagas `git commit` ni `git push`. Deja los cambios sin confirmar para que Dani los revise y los confirme a su nombre.
+- Respuestas cortas: qué archivos cambiaste, qué probaste y qué quedó pendiente.
