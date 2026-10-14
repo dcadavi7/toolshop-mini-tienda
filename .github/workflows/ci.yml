@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Lint, pruebas y build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v5
+
+      - name: Instalar Node.js 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias (exactas, según package-lock.json)
+        run: npm ci
+
+      - name: Revisar el código (ESLint)
+        run: npm run lint
+
+      - name: Pruebas unitarias y de API con cobertura (Vitest)
+        run: npm run test:coverage
+
+      - name: Compilar la aplicación (Next.js)
+        run: npm run build
+
+      - name: Guardar el reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: cobertura
+          path: coverage/
+          if-no-files-found: ignore
+          retention-days: 14
