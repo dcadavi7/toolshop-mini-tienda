@@ -13,6 +13,8 @@ type Resultado =
 export function VistaCarrito() {
   const { items, listo, cambiar, eliminar } = useCarrito();
   const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [pagando, setPagando] = useState(false);
+  const [errorPago, setErrorPago] = useState<string | null>(null);
   const clave = JSON.stringify(items);
 
   useEffect(() => {
@@ -38,6 +40,15 @@ export function VistaCarrito() {
       });
     return () => controlador.abort();
   }, [clave, items, listo]);
+
+  useEffect(() => {
+    // Si el usuario vuelve con "Atrás" desde Mercado Pago, el botón no debe quedar bloqueado.
+    const alMostrar = (evento: PageTransitionEvent) => {
+      if (evento.persisted) setPagando(false);
+    };
+    window.addEventListener("pageshow", alMostrar);
+    return () => window.removeEventListener("pageshow", alMostrar);
+  }, []);
 
   if (!listo) {
     return (
@@ -66,6 +77,26 @@ export function VistaCarrito() {
   const vigente = resultado?.clave === clave ? resultado : null;
   const calculando = vigente === null;
   const cotizacion = vigente?.ok ? vigente.cotizacion : null;
+  async function pagar() {
+    setPagando(true);
+    setErrorPago(null);
+    try {
+      const respuesta = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      const datos = await respuesta.json();
+      if (!respuesta.ok || typeof datos.checkoutUrl !== "string") {
+        throw new Error(datos.error ?? "No se pudo iniciar el pago");
+      }
+      window.location.assign(datos.checkoutUrl);
+    } catch (error) {
+      setErrorPago(error instanceof Error ? error.message : "No se pudo iniciar el pago");
+      setPagando(false);
+    }
+  }
+
   const lineaPorId = new Map(cotizacion?.lines.map((linea) => [linea.productId, linea]));
 
   return (
@@ -125,8 +156,14 @@ export function VistaCarrito() {
         })}
       </ul>
 
+      {errorPago && (
+        <p role="alert" data-testid="checkout-error" className="mb-4 rounded-md bg-red-50 p-3 text-red-800">
+          {errorPago}
+        </p>
+      )}
+
       {vigente && !vigente.ok && (
-        <p role="alert" className="mb-4 rounded-md bg-red-50 p-3 text-red-800">
+        <p role="alert" data-testid="cart-error" className="mb-4 rounded-md bg-red-50 p-3 text-red-800">
           {vigente.error}
         </p>
       )}
@@ -152,11 +189,12 @@ export function VistaCarrito() {
         <button
           type="button"
           data-testid="checkout-button"
-          disabled={calculando || !cotizacion}
-          aria-busy={calculando}
+          disabled={calculando || !cotizacion || pagando}
+          aria-busy={calculando || pagando}
+          onClick={pagar}
           className="rounded-md bg-blue-700 px-6 py-3 font-medium text-white hover:bg-blue-800 disabled:opacity-60"
         >
-          {calculando ? "Calculando…" : "Pagar"}
+          {pagando ? "Redirigiendo a Mercado Pago…" : calculando ? "Calculando…" : "Pagar"}
         </button>
       </div>
     </section>

@@ -11,6 +11,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "mercadopago": "^3.6.1",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"

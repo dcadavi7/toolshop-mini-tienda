@@ -13,7 +13,7 @@ Se despliega en Vercel y la prueba TestSprite de punta a punta.
 
 - Next.js (App Router) + TypeScript estricto, carpeta `src/`, alias `@/*`.
 - Tailwind CSS para estilos. Sin librerías de componentes.
-- SDK oficial `mercadopago` (v2: `MercadoPagoConfig`, `Preference`, `Payment`).
+- SDK oficial `mercadopago` (v3: `MercadoPagoConfig`, `Preference`, `Payment`, `WebhookSignatureValidator`).
 - Vitest para pruebas unitarias y de las rutas de la API.
 - Sin base de datos: el catálogo es `src/data/products.json`.
 - npm como gestor de paquetes.
@@ -129,12 +129,13 @@ Para que las pruebas generadas por TestSprite sean estables:
 - Cada elemento interactivo o con datos verificables tiene `data-testid`:
   - Catálogo: `product-card-<id>`, `product-price-<id>`, `product-stock-<id>`, `eco-badge-<id>`, `add-to-cart-<id>`, `cart-count`.
   - Carrito: `cart-line-<id>`, `qty-input-<id>`, `remove-<id>`, `cart-subtotal`, `cart-eco-discount`, `cart-total`, `checkout-button`, `cart-empty`.
-  - Resultado: `order-reference`, `order-status`, `order-total`, `back-to-cart`.
+  - Resultado: `order-reference`, `order-status`, `order-total`, `back-to-cart`, `payment-unconfirmed`, `payment-failed`.
+  - Errores: `cart-error` (cotización) y `checkout-error` (inicio del pago).
 - Usar elementos semánticos y roles accesibles (`button`, `link`, `heading`, `label` asociado a cada input).
 - Los montos se muestran con `Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })`.
 - Mientras se calcula o se crea el pago, el botón muestra estado de carga y queda deshabilitado
   (evita doble clic y da a las pruebas un estado que esperar).
-- Errores visibles en un elemento con `role="alert"`.
+- Errores visibles en un elemento con `role="alert"` y su `data-testid`. Ojo: Next.js agrega su propio `role="alert"` (`__next-route-announcer__`), así que las pruebas no deben buscar solo por el rol.
 
 ## 9. Pruebas y calidad
 
