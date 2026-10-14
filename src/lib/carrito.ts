@@ -55,8 +55,15 @@ export function subtotalLinea(precio: number, cantidad: number): number {
   return precio * cantidad;
 }
 
+export function productoPorId(
+  catalogo: Producto[],
+  productId: string,
+): Producto | undefined {
+  return catalogo.find((item) => item.id === productId);
+}
+
 function buscarProducto(catalogo: Producto[], productId: string): Producto {
-  const producto = catalogo.find((item) => item.id === productId);
+  const producto = productoPorId(catalogo, productId);
   if (!producto) {
     throw new Error(`El producto no existe`);
   }
@@ -149,4 +156,112 @@ export function totalCarrito(
   catalogo: Producto[],
 ): number {
   return subtotalCarrito(items, catalogo) - descuentoEcologico(items, catalogo);
+}
+
+export type LineaCotizacion = {
+  productId: string;
+  name: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+  eco: boolean;
+};
+
+export type Cotizacion = {
+  lines: LineaCotizacion[];
+  subtotal: number;
+  ecoDiscount: number;
+  total: number;
+};
+
+export type ResultadoValidacion =
+  | { ok: true; items: ItemCarrito[] }
+  | { ok: false; error: string };
+
+function esObjeto(valor: unknown): valor is Record<string, unknown> {
+  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
+}
+
+export function validarItemsCotizacion(
+  cuerpo: unknown,
+  catalogo: Producto[],
+): ResultadoValidacion {
+  if (!esObjeto(cuerpo) || !("items" in cuerpo) || !Array.isArray(cuerpo.items)) {
+    return { ok: false, error: "El cuerpo de la solicitud no es válido" };
+  }
+
+  if (cuerpo.items.length === 0) {
+    return { ok: false, error: "La lista de productos está vacía" };
+  }
+
+  const items: ItemCarrito[] = [];
+  const vistos = new Set<string>();
+
+  for (const item of cuerpo.items) {
+    if (!esObjeto(item) || typeof item.productId !== "string") {
+      return { ok: false, error: "El cuerpo de la solicitud no es válido" };
+    }
+
+    const { productId, quantity } = item;
+
+    if (vistos.has(productId)) {
+      return { ok: false, error: "El producto está repetido en el carrito" };
+    }
+    vistos.add(productId);
+
+    if (typeof quantity !== "number" || !Number.isFinite(quantity)) {
+      return { ok: false, error: "El cuerpo de la solicitud no es válido" };
+    }
+
+    if (
+      !Number.isInteger(quantity) ||
+      quantity < CANTIDAD_MINIMA ||
+      quantity > CANTIDAD_MAXIMA
+    ) {
+      return {
+        ok: false,
+        error: "La cantidad debe ser un entero entre 1 y 99",
+      };
+    }
+
+    const producto = productoPorId(catalogo, productId);
+    if (!producto) {
+      return { ok: false, error: "El producto no existe" };
+    }
+
+    if (estaAgotado(producto)) {
+      return { ok: false, error: "El producto está agotado" };
+    }
+
+    items.push({ productId, quantity });
+  }
+
+  return { ok: true, items };
+}
+
+export function cotizarCarrito(
+  items: ItemCarrito[],
+  catalogo: Producto[],
+): Cotizacion {
+  const lines = items.map((item) => {
+    const producto = buscarProducto(catalogo, item.productId);
+    return {
+      productId: item.productId,
+      name: producto.nombre,
+      unitPrice: producto.precio,
+      quantity: item.quantity,
+      lineTotal: subtotalLinea(producto.precio, item.quantity),
+      eco: esEcologico(producto),
+    };
+  });
+
+  const subtotal = subtotalCarrito(items, catalogo);
+  const ecoDiscount = descuentoEcologico(items, catalogo);
+
+  return {
+    lines,
+    subtotal,
+    ecoDiscount,
+    total: subtotal - ecoDiscount,
+  };
 }
