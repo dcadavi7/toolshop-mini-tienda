@@ -3,6 +3,9 @@ import catalogoJson from "@/data/products.json";
 import {
   agregarProducto,
   ajustarCantidad,
+  cambiarCantidad,
+  contarUnidades,
+  eliminarProducto,
   cincoPorCientoAlPeso,
   descuentoEcologico,
   esEcologico,
@@ -154,5 +157,58 @@ describe("descuento ecológico", () => {
 
     expect(descuentoEcologico(items, catalogoSintetico)).toBe(1);
     expect(totalCarrito(items, catalogoSintetico)).toBe(9);
+  });
+});
+
+describe("cambiarCantidad", () => {
+  const items = [
+    { productId: "claw-hammer", quantity: 2 },
+    { productId: "tape-measure", quantity: 1 },
+  ];
+
+  it("cambia la cantidad de una línea existente", () => {
+    expect(cambiarCantidad(items, "claw-hammer", 5)).toEqual([
+      { productId: "claw-hammer", quantity: 5 },
+      { productId: "tape-measure", quantity: 1 },
+    ]);
+  });
+
+  it("ajusta al rango 1–99 los valores fuera de rango o no numéricos", () => {
+    expect(cambiarCantidad(items, "claw-hammer", 0)[0].quantity).toBe(1);
+    expect(cambiarCantidad(items, "claw-hammer", 150)[0].quantity).toBe(99);
+    expect(cambiarCantidad(items, "claw-hammer", Number.NaN)[0].quantity).toBe(1);
+  });
+
+  it("no cambia nada si el producto no está en el carrito", () => {
+    expect(cambiarCantidad(items, "wood-saw", 3)).toBe(items);
+  });
+});
+
+describe("eliminarProducto", () => {
+  it("elimina la línea del producto", () => {
+    const items = [
+      { productId: "claw-hammer", quantity: 2 },
+      { productId: "tape-measure", quantity: 1 },
+    ];
+    expect(eliminarProducto(items, "claw-hammer")).toEqual([
+      { productId: "tape-measure", quantity: 1 },
+    ]);
+  });
+
+  it("deja el carrito igual si el producto no está", () => {
+    const items = [{ productId: "claw-hammer", quantity: 2 }];
+    expect(eliminarProducto(items, "wood-saw")).toEqual(items);
+  });
+});
+
+describe("contarUnidades", () => {
+  it("suma las cantidades de todas las líneas", () => {
+    expect(contarUnidades([])).toBe(0);
+    expect(
+      contarUnidades([
+        { productId: "claw-hammer", quantity: 2 },
+        { productId: "tape-measure", quantity: 3 },
+      ]),
+    ).toBe(5);
   });
 });

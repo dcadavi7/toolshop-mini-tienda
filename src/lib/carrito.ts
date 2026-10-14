@@ -265,3 +265,34 @@ export function cotizarCarrito(
     total: subtotal - ecoDiscount,
   };
 }
+
+/**
+ * Cambia la cantidad de una línea existente, ajustada al rango 1–99.
+ * Si el producto no está en el carrito, devuelve los ítems sin cambios.
+ */
+export function cambiarCantidad(
+  items: ItemCarrito[],
+  productId: string,
+  cantidad: number,
+): ItemCarrito[] {
+  if (!items.some((item) => item.productId === productId)) {
+    return items;
+  }
+  const quantity = ajustarCantidad(cantidad);
+  return items.map((item) =>
+    item.productId === productId ? { ...item, quantity } : item,
+  );
+}
+
+/** Elimina la línea del producto; si no está, devuelve los ítems sin cambios. */
+export function eliminarProducto(
+  items: ItemCarrito[],
+  productId: string,
+): ItemCarrito[] {
+  return items.filter((item) => item.productId !== productId);
+}
+
+/** Cantidad total de unidades en el carrito (para el contador del encabezado). */
+export function contarUnidades(items: ItemCarrito[]): number {
+  return items.reduce((acum, item) => acum + item.quantity, 0);
+}
