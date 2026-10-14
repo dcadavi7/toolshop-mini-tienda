@@ -1,0 +1,58 @@
+[
+  {
+    "id": "combination-pliers",
+    "nombre": "Alicate de combinación",
+    "precio": 52000,
+    "existencias": 12,
+    "co2Rating": "A"
+  },
+  {
+    "id": "bolt-cutters",
+    "nombre": "Cortapernos",
+    "precio": 189000,
+    "existencias": 5,
+    "co2Rating": "C"
+  },
+  {
+    "id": "long-nose-pliers",
+    "nombre": "Alicate de punta larga",
+    "precio": 41500,
+    "existencias": 0,
+    "co2Rating": "B"
+  },
+  {
+    "id": "claw-hammer",
+    "nombre": "Martillo de uña",
+    "precio": 63900,
+    "existencias": 20,
+    "co2Rating": "B"
+  },
+  {
+    "id": "thor-hammer",
+    "nombre": "Martillo Thor",
+    "precio": 459000,
+    "existencias": 2,
+    "co2Rating": "E"
+  },
+  {
+    "id": "wood-saw",
+    "nombre": "Serrucho para madera",
+    "precio": 78000,
+    "existencias": 8,
+    "co2Rating": "A"
+  },
+  {
+    "id": "sheet-sander",
+    "nombre": "Lijadora orbital",
+    "precio": 245000,
+    "existencias": 4,
+    "co2Rating": "D"
+  },
+  {
+    "id": "tape-measure",
+    "nombre": "Flexómetro 5 m",
+    "precio": 29900,
+    "existencias": 30,
+    "co2Rating": "A"
+  }
+]
