@@ -11,7 +11,6 @@ export type DatosPreferencia = {
   external_reference: string;
   back_urls: { success: string; failure: string; pending: string };
   auto_return?: "approved";
-  notification_url?: string;
   statement_descriptor: string;
 };
 
@@ -26,7 +25,9 @@ export function generarReferencia(
 
 /**
  * Arma la preferencia de Checkout Pro con un solo ítem por el total calculado en el servidor.
- * auto_return y notification_url solo se envían con HTTPS: Mercado Pago no los acepta con localhost.
+ * auto_return solo se envía con HTTPS: Mercado Pago no lo acepta con localhost.
+ * Las notificaciones llegan solo por el webhook configurado en el panel (firmado con la clave secreta);
+ * no se usa notification_url para no recibir avisos duplicados en otro formato.
  */
 export function construirPreferencia(
   cotizacion: Cotizacion,
@@ -54,7 +55,6 @@ export function construirPreferencia(
   };
   if (base.startsWith("https://")) {
     preferencia.auto_return = "approved";
-    preferencia.notification_url = `${base}/api/webhooks/mercadopago`;
   }
   return preferencia;
 }

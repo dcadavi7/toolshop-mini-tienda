@@ -40,14 +40,13 @@ describe("construirPreferencia", () => {
     });
   });
 
-  it("solo envía auto_return y notification_url con HTTPS", () => {
+  it("solo envía auto_return con HTTPS y nunca notification_url", () => {
     const local = construirPreferencia(cotizacion, "TS-1", "http://localhost:3000");
     expect(local.auto_return).toBeUndefined();
-    expect(local.notification_url).toBeUndefined();
 
     const publica = construirPreferencia(cotizacion, "TS-1", "https://tienda.vercel.app");
     expect(publica.auto_return).toBe("approved");
-    expect(publica.notification_url).toBe("https://tienda.vercel.app/api/webhooks/mercadopago");
+    expect(publica).not.toHaveProperty("notification_url");
   });
 });
 

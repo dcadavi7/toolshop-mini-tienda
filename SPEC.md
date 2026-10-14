@@ -95,8 +95,9 @@ Crea una preferencia de Checkout Pro:
 - `external_reference`: identificador único del pedido (por ejemplo `TS-` + fecha + aleatorio).
 - `back_urls`: `success` → `/pedido/exito`, `failure` → `/pedido/fallo`, `pending` → `/pedido/fallo`,
   todas construidas con `NEXT_PUBLIC_BASE_URL`.
-- `auto_return: "approved"` y `notification_url` → `/api/webhooks/mercadopago` **solo si**
-  `NEXT_PUBLIC_BASE_URL` empieza por `https://` (Mercado Pago no los acepta con `localhost`).
+- `auto_return: "approved"` **solo si** la URL base empieza por `https://` (Mercado Pago no lo acepta con `localhost`).
+- Sin `notification_url`: las notificaciones llegan solo por el webhook configurado en el panel de Mercado Pago
+  (firmado con la clave secreta). Así hay una sola fuente de avisos, todos firmados.
 
 Salida 200: `{ "checkoutUrl": "<init_point>", "externalReference": "TS-..." }`. Mismos 400 que el quote.
 Si Mercado Pago falla: 502 con mensaje genérico (sin filtrar detalles internos).
@@ -108,7 +109,8 @@ Si Mercado Pago falla: 502 con mensaje genérico (sin filtrar detalles internos)
 2. Firma ausente o inválida → **401**.
 3. Si el tipo es `payment`, consulta el pago con el SDK y, si está `approved`, registra el pedido
    en el log del servidor (`external_reference`, id del pago, monto). En el MVP no hay base de datos.
-4. Responde 200 rápido. Cualquier otro tipo de evento → 200 sin hacer nada.
+4. Responde 200 rápido. Cualquier otro tipo de evento, las notificaciones IPN sin `data.id` y los pagos
+   inexistentes (simulador del panel) → 200 sin procesar.
 
 ## 7. Variables de entorno
 

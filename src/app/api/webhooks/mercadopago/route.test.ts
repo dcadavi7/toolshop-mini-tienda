@@ -76,6 +76,25 @@ describe("POST /api/webhooks/mercadopago", () => {
     expect(respuesta.status).toBe(401);
   });
 
+  it("ignora con 200 las notificaciones IPN sin data.id, sin consultar el pago", async () => {
+    const respuesta = await POST(
+      new Request("https://tienda.test/api/webhooks/mercadopago?topic=merchant_order&id=1", { method: "POST" }),
+    );
+    expect(respuesta.status).toBe(200);
+    expect(consultarPago).not.toHaveBeenCalled();
+  });
+
+  it("responde 200 sin procesar si el pago no existe (simulador del panel)", async () => {
+    const { MPNotFoundError } = await import("mercadopago");
+    consultarPago.mockRejectedValue(Object.create(MPNotFoundError.prototype));
+    const ts = String(Math.floor(Date.now() / 1000));
+
+    const respuesta = await notificar({ "x-signature": firmar("123456", "req-1", ts), "x-request-id": "req-1" });
+
+    expect(respuesta.status).toBe(200);
+    expect((await respuesta.json()).procesado).toBe(false);
+  });
+
   it("responde 500 si falta la clave secreta", async () => {
     vi.stubEnv("MP_WEBHOOK_SECRET", "");
     const respuesta = await notificar({});
