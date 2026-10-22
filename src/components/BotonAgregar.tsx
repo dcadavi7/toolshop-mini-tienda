@@ -32,14 +32,14 @@ export function BotonAgregar({ productId, nombre, agotado }: Props) {
         type="button"
         disabled={!listo}
         data-testid={`add-to-cart-${productId}`}
-        aria-label={`Agregar ${nombre} al carrito`}
+        aria-label={`Añadir ${nombre} a la compra`}
         onClick={() => {
           agregar(productId);
-          setMensaje(`${nombre} agregado al carrito`);
+          setMensaje(`${nombre} añadido a la compra`);
         }}
         className="w-full rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60"
       >
-        Agregar
+        Añadir
       </button>
       <p role="status" className="mt-2 min-h-5 text-xs text-green-700">
         {mensaje}

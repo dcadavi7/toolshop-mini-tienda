@@ -105,6 +105,35 @@ export function VistaCarrito() {
         Tu carrito
       </h1>
 
+      <dl className="ml-auto mb-6 max-w-sm space-y-2 rounded-lg border border-gray-200 bg-white p-4">
+        <div className="flex justify-between">
+          <dt>Subtotal</dt>
+          <dd data-testid="cart-subtotal">{cotizacion ? formatearCOP(cotizacion.subtotal) : "…"}</dd>
+        </div>
+        <div className="flex justify-between text-green-800">
+          <dt>Descuento ecológico</dt>
+          <dd data-testid="cart-eco-discount">
+            {cotizacion ? `-${formatearCOP(cotizacion.ecoDiscount)}` : "…"}
+          </dd>
+        </div>
+        <div className="flex justify-between border-t border-gray-200 pt-2 text-lg font-bold">
+          <dt>Total</dt>
+          <dd data-testid="cart-total">{cotizacion ? formatearCOP(cotizacion.total) : "…"}</dd>
+        </div>
+      </dl>
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          data-testid="pay-button"
+          disabled={calculando || !cotizacion || pagando}
+          aria-busy={calculando || pagando}
+          onClick={pagar}
+          className="rounded-md bg-blue-700 px-6 py-3 font-medium text-white hover:bg-blue-800 disabled:opacity-60"
+        >
+          {pagando ? "Redirigiendo a Mercado Pago…" : calculando ? "Calculando…" : "Ir a pagar"}
+        </button>
+      </div>
       <ul className="mb-6 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
         {items.map((item) => {
           const linea = lineaPorId.get(item.productId);
@@ -168,35 +197,6 @@ export function VistaCarrito() {
         </p>
       )}
 
-      <dl className="ml-auto mb-6 max-w-sm space-y-2 rounded-lg border border-gray-200 bg-white p-4">
-        <div className="flex justify-between">
-          <dt>Subtotal</dt>
-          <dd data-testid="cart-subtotal">{cotizacion ? formatearCOP(cotizacion.subtotal) : "…"}</dd>
-        </div>
-        <div className="flex justify-between text-green-800">
-          <dt>Descuento ecológico</dt>
-          <dd data-testid="cart-eco-discount">
-            {cotizacion ? `-${formatearCOP(cotizacion.ecoDiscount)}` : "…"}
-          </dd>
-        </div>
-        <div className="flex justify-between border-t border-gray-200 pt-2 text-lg font-bold">
-          <dt>Total</dt>
-          <dd data-testid="cart-total">{cotizacion ? formatearCOP(cotizacion.total) : "…"}</dd>
-        </div>
-      </dl>
-
-      <div className="flex justify-end">
-        <button
-          type="button"
-          data-testid="checkout-button"
-          disabled={calculando || !cotizacion || pagando}
-          aria-busy={calculando || pagando}
-          onClick={pagar}
-          className="rounded-md bg-blue-700 px-6 py-3 font-medium text-white hover:bg-blue-800 disabled:opacity-60"
-        >
-          {pagando ? "Redirigiendo a Mercado Pago…" : calculando ? "Calculando…" : "Pagar"}
-        </button>
-      </div>
     </section>
   );
 }
